@@ -1,0 +1,180 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>Hello APP</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <style>
+        label {
+            margin: 10px;
+            font-size: 24px;
+        }
+
+        ul {
+            margin-bottom: 10px;
+        }
+
+        ul li {
+            margin: 5px 10px;
+            padding: 5px;
+            color: #000;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body>
+<div id='sys-info'></div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+    function reqPermission(one_per,callback) {
+        api.requestPermission({
+            list: one_per,
+            code: 100001
+        }, function(ret, err) {
+            //获取处理结果
+            var list = ret.list;
+            for (var i in list) {
+                //只有有一项权限不足，就返回
+                if (list[i].granted == false) {
+                    api.toast({
+                        msg: '权限不足，无法进行下一步操作',
+                        duration: 2000,
+                        location: 'bottom'
+                    });
+                    return false;
+                }
+            }
+
+            if (callback) {
+                callback();
+                return;
+            }
+        });
+    }
+
+
+    function openWin(path){
+        api.openWin({
+        name:'second',
+        url: 'second.html',
+        pageParam: {pathVal:path}
+        });
+    }
+
+    apiready = function() {
+        reqPermission('storage',function(){
+            api.alert({
+                        title: '判断完回来了。',
+                        msg: 'testmsg',
+                    }, function(ret, err){
+
+                    });
+        });
+        $api.byId('sys-info').innerHTML = "hello";
+        var fileModule=api.require('FileModule');
+        //第一种初始化方式
+        //fileModule.init();
+        //第二种初始化方式测试
+        fileModule.initSuffixTrie({suffixTrieMap:{
+        '512':[ "png", "gif", "jpe", "jpg", "jpeg", "bmp", "heic", "hif", "jfif", "dib"],
+        '770':[ "aac", "wav", "mid", "midi", "mp2",
+        "mp3", "m4a"],
+        '769':["mkv", "mov", "mp4", "mpeg", "mpg", "3gp",
+        "avi", "flv", "webm"],
+        '1025':["pdf"],
+        '1026':[ "ppt", "pptx"],
+        '1027':[ "xls", "xlsx"],
+        '1028':["doc", "docx"],
+        '1029':[ "txt", "log", "rtf", "xml" ],
+        '1030':["html"],
+        '1280':["zip", "rar","tar","gzip","gz2"],
+        '1792':["apk"]
+        }},function(ret,err){});
+
+        /*
+            测试getTypeBySuffix功能
+        */
+        fileModule.getTypeBySuffix({suffix:'mp3'},function(ret,err){
+        console.log(JSON.stringify(ret));
+        });
+
+        /*
+            测试getTypeByName功能
+        */
+         fileModule.getTypeByName({fileName:'1232.mp3'},function(ret,err){
+                 console.log(JSON.stringify(ret));
+        });
+
+         /*
+            测试getFileType功能
+        */
+         fileModule.getFileType({filePath:'1232.mp3'},function(ret,err){
+                 if(err!=null){
+                   console.log(JSON.stringify(err));
+                 }
+                 console.log(JSON.stringify(ret));
+        });
+
+        /*
+            测试getFiles功能
+        */
+       /* fileModule.getFiles({
+        filePath:'/sdcard',
+        fileClassifier:{
+            useMask:true,
+            mask:65280,
+            acceptTypes:[512],//video or audio
+            returnFile:false
+        }
+        },function(ret,err){
+             if(err!=null){
+                   console.log(JSON.stringify(err));
+             }
+             var result= ret.result;
+             var str = '';
+             for(var index in result){
+                var type = result[index]['type'];
+                 if(type == 512){//img
+                     str+='<img src="'+result[index]['path']+'"  onclick="openWin(\''+result[index]['path']+'\')" width="33%"/>';
+                }
+                 if(index%3==0&&index!=0)
+                     str+='</br>';
+             }
+             //fileModule.androidLog({value:str});
+             $api.byId('sys-info').innerHTML = str;
+        });*/
+
+
+        /**
+            获得文件得尺寸大小
+        **/
+        fileModule.getFileSize({filePath:"/sdcard"},function(ret,err){
+            console.log(ret);
+        });
+
+
+        /**
+        统计某一路径下[filePath]的文件个数:
+        statisticWay:统计方式，1：仅统计文件
+                             2：统计文件和文件夹
+        */
+        fileModule.getFileCount({filePath:"/sdcard",statisticWay:1},function(ret,err){
+            console.log(ret);
+        });
+
+
+
+    };
+
+
+
+
+</script>
+
+</html>

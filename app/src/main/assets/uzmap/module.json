@@ -1,0 +1,8 @@
+{
+  "modules":[
+    {
+      "name":"FileModule",
+      "class":"cn.ololee.fileclassifier.FileModule"
+    }
+  ]
+}
